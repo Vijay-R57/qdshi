@@ -15,8 +15,8 @@ import {
 import CircularTracker from '../components/CircularTracker';
 import { dashboardMetrics as initialData } from '../dashboardData';
 
-const MySwal = withReactContent(Swal);
 import { API_BASE_URL as BASE } from '../apiConfig';
+const MySwal = withReactContent(Swal);
 const API_BASE_URL = `${BASE}/api/metrics`;
 const DEPT_FULL = { fg: 'Finished Good Material Warehouse', pm: 'Packing Material Warehouse', rm: 'Raw Material Warehouse' };
 
