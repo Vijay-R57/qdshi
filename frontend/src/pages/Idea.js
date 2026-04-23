@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Lightbulb, Send, CheckCircle, Loader2, AlertCircle, Download } from 'lucide-react';
+import { API_BASE_URL } from '../apiConfig';
 
 const BENEFIT_OPTIONS = ['Safety', 'Quality', 'Cost', 'Delivery', 'Morale'];
 
@@ -23,7 +24,7 @@ const Idea = ({ shift }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/ideation/config')
+    fetch(`${API_BASE_URL}/api/ideation/config`)
       .then(r => r.json())
       .then(setConfig)
       .catch(() => setConfigError(true));
@@ -64,7 +65,7 @@ const Idea = ({ shift }) => {
         department: form.department.trim(),
       });
 
-      const res = await fetch('http://localhost:5000/api/ideation/submit', {
+      const res = await fetch(`${API_BASE_URL}/api/ideation/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

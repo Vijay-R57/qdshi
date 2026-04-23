@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, Loader2, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+import { API_BASE_URL } from '../apiConfig';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +17,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/users/login', { 
+      const res = await axios.post(`${API_BASE_URL}/api/users/login`, { 
         gmail: email, 
         password: password 
       });

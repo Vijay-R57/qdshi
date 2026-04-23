@@ -18,10 +18,14 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/metrics',  metricRoutes);
-app.use('/api/users',    userRoutes);
-app.use('/api/health',   healthRoutes);
-app.use('/api/ideation', ideationRoutes);
+const router = express.Router();
+router.use('/metrics',  metricRoutes);
+router.use('/users',    userRoutes);
+router.use('/health',   healthRoutes);
+router.use('/ideation', ideationRoutes);
+
+app.use('/api', router);
+app.use('/_/backend/api', router); // Support for Vercel Monorepo prefix
 
 // Global Error Handler
 app.use((err, req, res, next) => {

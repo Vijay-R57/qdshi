@@ -14,6 +14,7 @@ import {
   User
 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 
 const HodDashboard = () => {
   const user = JSON.parse(localStorage.getItem('userInfo'));
@@ -44,7 +45,7 @@ const HodDashboard = () => {
 
   const fetchAllSupervisors = useCallback(async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/users/supervisors/ALL`);
+      const { data } = await axios.get(`${API_BASE_URL}/api/users/supervisors/ALL`);
       setSupervisors(data);
     } catch (err) {
       showNotify("Connection Error", "error");
@@ -79,7 +80,7 @@ const handleRowUpdate = async (svId, svName) => {
   );
 
   try {
-    const response = await axios.put(`http://localhost:5000/api/users/update/${svId}`, updates);
+    const response = await axios.put(`${API_BASE_URL}/api/users/update/${svId}`, updates);
     if (response.data.success) {
       showNotify(`${svName} updated!`, "success");
       setEditData(prev => {
@@ -97,7 +98,7 @@ const handleRowUpdate = async (svId, svName) => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/users/register', newSv);
+      await axios.post(`${API_BASE_URL}/api/users/register`, newSv);
       showNotify("Supervisor Registered Successfully", "success");
       setIsAddModalOpen(false);
       setNewSv({ name: '', dob: '', employeeId: '', gmail: '', password: '', department: 'Quality (Q)', shift: '1', role: 'supervisor' });

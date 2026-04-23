@@ -5,7 +5,8 @@ import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, AreaChart, Area, Carte
 import CircularTracker from '../components/CircularTracker';
 import { dashboardMetrics as initialData } from '../dashboardData';
 
-const API_BASE = 'http://localhost:5000/api/metrics';
+import { API_BASE_URL as BASE } from '../apiConfig';
+const API_BASE = `${BASE}/api/metrics`;
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DEPT_FULL = { fg: 'Finished Good Warehouse', pm: 'Packing Material Warehouse', rm: 'Raw Material Warehouse' };
 

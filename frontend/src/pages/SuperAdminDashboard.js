@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserPlus, ShieldCheck, Users, X, Mail, Hash, Calendar, Lock, Briefcase, Clock, ChevronRight } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 
 const SuperAdminDashboard = () => {
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', role: '' });
@@ -47,7 +48,7 @@ const SuperAdminDashboard = () => {
         shift: modalConfig.role === 'hod' ? 'NONE' : formData.shift
       };
       
-      await axios.post('http://localhost:5000/api/users/register', payload, config);
+      await axios.post(`${API_BASE_URL}/api/users/register`, payload, config);
       alert(`${modalConfig.role.toUpperCase()} Created Successfully!`);
       setModalConfig({ ...modalConfig, isOpen: false });
     } catch (err) {

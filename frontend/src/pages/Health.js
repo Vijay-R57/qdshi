@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, X, Save, ChevronLeft, ChevronRight, Lock, CheckCircle2, ShieldAlert } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 
 const DEPT_FULL = { fg: 'Finished Good Material Warehouse', pm: 'Packing Material Warehouse', rm: 'Raw Material Warehouse' };
 
@@ -65,7 +66,7 @@ const Health = () => {
 
     const fetchMonthData = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/health`, {
+        const { data } = await axios.get(`${API_BASE_URL}/api/health`, {
           params: { month: currentMonthName, year: 2026, dept: dept || "fg", shift: shift || "1", }
         });
         if (data?.days?.length > 0) {
@@ -109,7 +110,7 @@ const Health = () => {
     };
 
     try {
-      await axios.post('http://localhost:5000/api/health/update', payload);
+      await axios.post(`${API_BASE_URL}/api/health/update`, payload);
       const updatedMonthArray = allMonthsData[currentMonthName].map(item =>
         item.date === selectedDay.date
           ? {
