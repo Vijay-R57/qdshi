@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, Loader2, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../apiConfig';
 
 const LoginPage = () => {

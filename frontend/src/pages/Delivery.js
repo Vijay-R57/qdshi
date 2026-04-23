@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams as useRParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Star, Activity, Clock, Calendar, TrendingUp, Trash2, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Activity, Clock, Calendar, TrendingUp, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, AreaChart, Area, CartesianGrid, YAxis, Legend, Tooltip } from 'recharts';
 import CircularTracker from '../components/CircularTracker';
 import { dashboardMetrics as initialData } from '../dashboardData';
@@ -108,7 +108,7 @@ const DeliveryPage = () => {
     }
   };
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE}?shift=${activeShift}&dept=${activeDept}`);
@@ -120,7 +120,7 @@ const DeliveryPage = () => {
         setActivityLogs(dLive?.activityLogs || []);
       }
     } catch (e) { console.error("Fetch error:", e); } finally { setLoading(false); }
-  };
+  }, [activeShift, activeDept]);
 
   const handleLogSubmit = async (type) => {
     setTableSyncing(prev => ({ ...prev, [type]: true }));
@@ -179,7 +179,7 @@ const DeliveryPage = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     fetchMetrics();
     return () => clearInterval(timer);
-  }, [activeShift, activeDept]);
+  }, [activeShift, activeDept, fetchMetrics]);
 
   const dynamicDaysData = useMemo(() => {
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();

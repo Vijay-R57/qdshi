@@ -122,7 +122,7 @@ const Idea = ({ shift }) => {
               Submit Another Idea
             </button>
             <a
-              href="http://localhost:5000/api/ideation/download"
+              href={`${API_BASE_URL}/api/ideation/download`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-4 rounded-2xl uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -179,7 +179,7 @@ const Idea = ({ shift }) => {
             View the current ideation spreadsheet from your Google Sheet.
           </div>
           <a
-            href="http://localhost:5000/api/ideation/download"
+            href={`${API_BASE_URL}/api/ideation/download`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-slate-800"
