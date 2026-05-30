@@ -4,7 +4,11 @@ const mongoose = require('mongoose');
 const cors     = require('cors');
 const dns      = require('dns');
 
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
+try {
+  dns.setServers(["1.1.1.1", "8.8.8.8"]);
+} catch (err) {
+  console.warn("⚠️ Custom DNS servers could not be set:", err.message);
+}
 
 const metricRoutes      = require('./routes/metricRoutes');
 const userRoutes        = require('./routes/userRoutes');
