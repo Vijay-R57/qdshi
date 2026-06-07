@@ -16,9 +16,13 @@ const DEPT_FULL = {
 const MODULE_NAMES = { Q: 'Quality', D: 'Delivery', S: 'Safety', H: 'Health' };
 
 let transporter = null;
+let transporterVerified = false;
 
 const getTransporter = () => {
   if (!transporter) {
+    const rejectUnauthorized = process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false'
+      ? (process.env.SMTP_TLS_REJECT_UNAUTHORIZED === 'true')
+      : false;
     transporter = nodemailer.createTransport({
       host:   process.env.SMTP_HOST || 'smtp.gmail.com',
       port:   parseInt(process.env.SMTP_PORT || '587'),
@@ -27,22 +31,49 @@ const getTransporter = () => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      tls: { rejectUnauthorized },
     });
+    transporterVerified = false;
   }
   return transporter;
 };
 
 /**
- * Sends a missed-shift email alert to the HOD.
- * @param {object} opts
- * @param {string} opts.hodEmail
- * @param {string} opts.hodName
- * @param {string} opts.dept
- * @param {string} opts.shift
- * @param {string[]} opts.missedModules  e.g. ['Q','D','S']
- * @param {string} opts.date             YYYY-MM-DD
- * @param {string} opts.startTime        HH:MM
- * @param {string} opts.endTime          HH:MM
+ * Verifies SMTP connection. Call once at startup.
+ * Logs success or error without throwing.
+ */
+const verifyTransporter = () => {
+  if (transporterVerified) return;
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+  const t = getTransporter();
+  t.verify((err) => {
+    if (err) {
+      console.error('❌ SMTP connection failed:', err.message);
+      // Reset so it will be recreated on next call (e.g. after env fix)
+      transporter = null;
+      transporterVerified = false;
+    } else {
+      console.log('✅ SMTP connection verified — ready to send emails');
+      transporterVerified = true;
+    }
+  });
+};
+
+/**
+ * Sends a missed-shift email alert to supervisor/HOD with superadmins CC'd.
+ * @param {object}   opts
+ * @param {string[]} opts.toEmails         Primary recipients (supervisor + HOD emails)
+ * @param {string[]} [opts.ccEmails]       CC recipients (superadmin emails)
+ * @param {string}   opts.recipientName    Greeting name (supervisor or HOD)
+ * @param {string}   opts.supervisorName   Name shown in the alert details table
+ * @param {string}   opts.supervisorId     Employee ID shown in the alert details table
+ * @param {string}   opts.supervisorEmail  Email shown in the alert details table
+ * @param {string}   opts.dept             Department key e.g. 'fgmw'
+ * @param {string}   opts.shift            Shift number e.g. '1'
+ * @param {string[]} opts.missedModules    e.g. ['Q','D','S']
+ * @param {string}   opts.date             YYYY-MM-DD
+ * @param {string}   opts.startTime        HH:MM IST
+ * @param {string}   opts.endTime          HH:MM IST
  */
 const sendShiftMissedAlert = async ({ toEmails, ccEmails = [], recipientName, supervisorName, supervisorId, supervisorEmail, dept, shift, missedModules, date, startTime, endTime }) => {
   const deptName    = DEPT_FULL[dept] || dept.toUpperCase();
@@ -109,4 +140,4 @@ const sendShiftMissedAlert = async ({ toEmails, ccEmails = [], recipientName, su
   await getTransporter().sendMail(mailOptions);
 };
 
-module.exports = { sendShiftMissedAlert };
+module.exports = { sendShiftMissedAlert, verifyTransporter };

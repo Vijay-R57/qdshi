@@ -32,6 +32,7 @@ const runTest = async () => {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
+        tls: { rejectUnauthorized: false }, // bypass corporate proxy SSL interception
       });
     } else {
       console.log('No SMTP credentials in .env, using Ethereal Email for testing...');
@@ -44,6 +45,7 @@ const runTest = async () => {
           user: testAccount.user,
           pass: testAccount.pass,
         },
+        tls: { rejectUnauthorized: false },
       });
     }
 
@@ -77,16 +79,16 @@ const runTest = async () => {
     let toEmails = [];
     if (supervisorEmail) toEmails.push(supervisorEmail);
     if (hodEmail) toEmails.push(hodEmail);
-
-    // Add mock superadmins if none exist so the test output shows them
-    if (superAdminEmails.length === 0) {
-        superAdminEmails.push('superadmin1@example.com', 'superadmin2@example.com');
-    }
-    
-    toEmails.push(...superAdminEmails);
     toEmails = [...new Set(toEmails)];
 
-    const recipientName = supervisorEmail ? supervisorName : (hodEmail ? 'HOD User' : 'Team');
+    // Superadmins go to CC, not TO
+    const ccEmails = superAdminEmails.length > 0 ? superAdminEmails : [];
+
+    // Use a generic greeting when multiple recipients get the same email
+    const recipientName =
+      toEmails.length === 1
+        ? (supervisorEmail ? supervisorName : 'HOD User')
+        : 'Supervisor / HOD Team';
     
     const dept = 'ppp';
     const shift = '1';
@@ -141,11 +143,11 @@ const runTest = async () => {
       </div>
     </div>`;
 
-    console.log(`Sending test email...\nTO: ${toEmails.join(', ')}`);
+    console.log(`Sending test email...\nTO:  ${toEmails.join(', ')}\nCC:  ${ccEmails.join(', ') || '(none)'}`);
 
     const mailOptions = {
-      from: process.env.SMTP_FROM || '"Arcolab QMS" <test@arcolab.com>',
-      to: toEmails.join(', '),
+      from: process.env.SMTP_FROM || `"Arcolab QMS" <${process.env.SMTP_USER || 'test@arcolab.com'}>`,
+      to:   toEmails.join(', '),
       subject,
       html,
       attachments: [
@@ -154,7 +156,8 @@ const runTest = async () => {
           path: path.join(__dirname, '../frontend/src/assest/arcolabLogo.jpg'),
           cid: 'arcolablogo'
         }
-      ]
+      ],
+      ...(ccEmails.length > 0 ? { cc: ccEmails.join(', ') } : {})
     };
 
     const info = await transporter.sendMail(mailOptions);

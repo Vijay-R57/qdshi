@@ -3,7 +3,7 @@ const TimeLock = require('../models/TimeLock');
 const AuditLog = require('../models/AuditLog');
 const AlertLog = require('../models/AlertLog');
 const User     = require('../models/User');
-const { sendShiftMissedAlert } = require('../utils/emailService');
+const { sendShiftMissedAlert, verifyTransporter } = require('../utils/emailService');
 const { nowIST, formatISTTime, formatISTDate } = require('../utils/saveHelpers');
 
 const MODULES = ['Q', 'D', 'S', 'H'];
@@ -80,7 +80,11 @@ const checkAndSendAlerts = async () => {
       // Remove duplicates just in case
       toEmails = [...new Set(toEmails)];
 
-      const recipientName = supervisorEmail ? supervisor?.name : (hodEmail ? hod?.name : 'Team');
+      // Use a generic greeting when multiple recipients get the same email
+      const recipientName =
+        toEmails.length === 1
+          ? (supervisorEmail ? supervisor?.name : hod?.name)
+          : 'Supervisor / HOD Team';
 
       try {
         await sendShiftMissedAlert({
@@ -112,6 +116,9 @@ const startShiftAlertJob = () => {
     console.log('⚠️  SMTP credentials not set — shift alert emails disabled. Add SMTP_USER and SMTP_PASS to .env to enable.');
     return;
   }
+
+  // Verify SMTP connection at startup so misconfig is caught early
+  verifyTransporter();
 
   // Runs every 5 minutes
   cron.schedule('*/5 * * * *', checkAndSendAlerts);
